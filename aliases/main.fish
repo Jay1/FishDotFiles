@@ -2,5 +2,5 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-alias ls="ls -FG"
+alias ls="ls -fg"
 alias rm="rm -i"
