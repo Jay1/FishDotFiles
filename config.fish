@@ -14,6 +14,7 @@ or set PATH /Users/jay/.local/bin $PATH
 alias v='lvim'
 set -gx EDITOR lvim
 set -gx GIT_EDITOR $EDITOR
+set -gx fish_prompt_pwd_dir_length 0
 
 switch (uname)
 case Linux
