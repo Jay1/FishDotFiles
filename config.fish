@@ -11,8 +11,8 @@ or set PATH /opt/homebrew/bin $PATH
 contains /Users/jay/.local/bin
 or set PATH /Users/jay/.local/bin $PATH
 
-alias v='lvim'
-set -gx EDITOR lvim
+alias v='nvim'
+set -gx EDITOR nvim
 set -gx GIT_EDITOR $EDITOR
 set -gx fish_prompt_pwd_dir_length 0
 
