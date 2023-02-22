@@ -5,7 +5,7 @@ alias .....="cd ../../../.."
 
 # Goto
 alias dl='cd ~/Downloads'
-alias files ='cd ~/Desktop/Files/'
+alias files='cd ~/Desktop/Files/'
 alias fdot='cd ~/.config/fish/'
 alias vdot='cd ~/.config/nvim/'
 alias kdot='cd ~/.config/kitty/'
