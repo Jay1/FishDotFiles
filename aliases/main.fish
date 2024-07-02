@@ -1,5 +1,6 @@
 # Terminal Commands
 alias pwdc="command pwd | tee /dev/tty | pbcopy"
+alias cls='clear'
 
 # Directory movements
 alias ...="cd ../.."
