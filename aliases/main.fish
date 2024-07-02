@@ -10,13 +10,14 @@ alias .....="cd ../../../.."
 # Goto
 alias dl='cd ~/Downloads'
 alias files='cd ~/Desktop/Files/'
+alias temp='cd ~/Desktop/Temp'
 alias fdot='cd ~/.config/fish/'
 alias vdot='cd ~/.config/nvim/'
 alias kdot='cd ~/.config/kitty/'
 alias dotvault='cd ~/Dotvault/'
 
 # List
-alias ls="ls -fg"
+alias ls="gls -fg --color=auto"
 
 # Weather
 alias weather="curl -4 wttr.in/Montreal"
