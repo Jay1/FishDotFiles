@@ -2,20 +2,21 @@ if status is-interactive
     # Commands to run in interactive sessions can go here
 end
 
-
-
+# Path modifications for WSL
 contains /usr/local/bin $PATH
 or set PATH /usr/local/bin $PATH
-contains /opt/homebrew/bin
-or set PATH /opt/homebrew/bin $PATH
-contains /Users/jay/.local/bin
-or set PATH /Users/jay/.local/bin $PATH
+contains /home/jay/.local/bin $PATH
+or set PATH /home/jay/.local/bin $PATH
 
+# Alias for neovim
 alias v='nvim'
+
+# Environment variables
 set -gx EDITOR nvim
 set -gx GIT_EDITOR $EDITOR
 set -gx fish_prompt_pwd_dir_length 0
 
+# OS detection
 switch (uname)
     case Linux
         set -x OSTYPE Linux
@@ -27,35 +28,35 @@ switch (uname)
         set -x OSTYPE unknown
 end
 
-if [ -f $HOME/.config/fish/env/index.fish ]
+# Source additional configuration files
+if test -f $HOME/.config/fish/env/index.fish
     source $HOME/.config/fish/env/index.fish
 end
 
-#
-### ALIAS
-#
-# Main
-if [ -f $HOME/.config/fish/aliases/main.fish ]
+# Aliases
+if test -f $HOME/.config/fish/aliases/main.fish
     source $HOME/.config/fish/aliases/main.fish
 end
 
-# Private aliases (e.g. with servers address...)
-## aliases/private.fish will be ignored by git (.gitignore)
-if [ -f $HOME/.config/fish/aliases/private.fish ]
+if test -f $HOME/.config/fish/aliases/private.fish
     source $HOME/.config/fish/aliases/private.fish
 end
 
-# Git
-if [ -f $HOME/.config/fish/aliases/git.fish ]
+if test -f $HOME/.config/fish/aliases/git.fish
     source $HOME/.config/fish/aliases/git.fish
 end
 
-# bun
+# Bun configuration (if you use it in WSL)
 set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
 
-# Kitty Shell integration
-if test -n "$KITTY_INSTALLATION_DIR"
-    source "$KITTY_INSTALLATION_DIR/shell-integration/fish/vendor_conf.d/kitty-shell-integration.fish"
-    set --prepend fish_complete_path "$KITTY_INSTALLATION_DIR/shell-integration/fish/vendor_completions.d"
+# WSL-specific configurations
+if string match -q "*Microsoft*" (uname -r)
+    # WSL-specific path additions (if needed)
+    # set -gx PATH /mnt/c/Windows/System32 $PATH
+
+    # Add any other WSL-specific configurations here
 end
+
+# Starship prompt initialization
+starship init fish | source

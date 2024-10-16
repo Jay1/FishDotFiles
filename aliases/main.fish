@@ -1,5 +1,5 @@
 # Terminal Commands
-alias pwdc="command pwd | tee /dev/tty | pbcopy"
+alias pwdc="pwd | tee /dev/tty | clip.exe"
 alias cls='clear'
 
 # Directory movements
@@ -7,24 +7,33 @@ alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-# Goto
-alias dl='cd ~/Downloads'
-alias files='cd ~/Desktop/Files/'
-alias temp='cd ~/Desktop/Temp'
+# Goto (adjust paths for your WSL setup)
+alias download='cd /mnt/c/Users/JasonChiasson/Downloads'
+alias temp='cd "/mnt/c/Users/JasonChiasson/OneDrive - AET Solutions Inc/Desktop/temp/"'
+alias home='cd "/mnt/c/Users/JasonChiasson/OneDrive - AET Solutions Inc/Desktop"'
+alias config='cd ~/.config'
 alias fdot='cd ~/.config/fish/'
 alias vdot='cd ~/.config/nvim/'
-alias kdot='cd ~/.config/kitty/'
-alias dotvault='cd ~/Dotvault/'
 
-# List
-alias ls="gls -fg --color=auto"
+# List (using ls instead of gls)
+alias ls="ls -lAh --color=auto"
 
 # Weather
 alias weather="curl -4 wttr.in/Montreal"
 alias moon="curl -4 wttr.in/Moon"
-alias et='sudo rm -rfv /Volumes/*/.Trashes; rm -rfv ~/.Trash'
 
-#MacOS specific
-alias update="sudo softwareupdate -i -a; brew update; brew upgrade"
-alias flush="sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder"
-alias trash="rm -rf ~/.Trash/*"
+# WSL-specific aliases
+alias explorer='explorer.exe .'
+alias cmd='cmd.exe'
+alias powershell='powershell.exe'
+
+# Clipboard interaction
+alias pbcopy='clip.exe'
+alias pbpaste='powershell.exe -command "Get-Clipboard"'
+
+# WSL / Windows path conversion
+alias wslpath='wslpath -w'
+alias winpath='wslpath -u'
+
+# Quick edit for this file
+alias editaliases='v ~/.config/fish/aliases/main.fish'
