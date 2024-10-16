@@ -15,6 +15,7 @@ alias v='nvim'
 set -gx EDITOR nvim
 set -gx GIT_EDITOR $EDITOR
 set -gx fish_prompt_pwd_dir_length 0
+set fish_greeting 'Welcome to the big show'
 
 # OS detection
 switch (uname)
