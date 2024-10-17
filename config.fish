@@ -15,6 +15,7 @@ alias v='nvim'
 set -gx EDITOR nvim
 set -gx GIT_EDITOR $EDITOR
 set -gx fish_prompt_pwd_dir_length 0
+set fish_greeting "Welcome back, Jay"
 
 # OS detection
 switch (uname)
@@ -60,3 +61,4 @@ end
 
 # Starship prompt initialization
 starship init fish | source
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
