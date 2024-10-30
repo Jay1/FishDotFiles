@@ -1,11 +1,11 @@
 # Basic Git operations
 alias ga="git add"
 alias gai="git add -i"
-alias gs="git status"
-alias gl="git log"
+alias gs="git status -sb" # Short status with branch info
+alias gl="git log --oneline --graph --decorate"
 alias gl1="git log -n 1"
-alias gf="git fetch --all"
-alias gpull="git pull"
+alias gf="git fetch --all --prune"
+alias gpull="git pull --rebase"
 alias gpush="git push"
 
 # Checkout and switch
