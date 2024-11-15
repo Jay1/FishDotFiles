@@ -61,8 +61,10 @@ if string match -q "*Microsoft*" (uname -r)
 end
 
 # Starship prompt initialization
-starship init fish | source
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+if status is-interactive
+    starship init fish | source
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+end
 
 # OpenStack environment setup
 if status is-interactive
