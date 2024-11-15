@@ -15,6 +15,7 @@ alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
 # Goto (adjust paths for your WSL setup)
+alias docu='cd "/mnt/c/Users/JasonChiasson/"'
 alias download='cd /mnt/c/Users/JasonChiasson/Downloads'
 alias temp='cd "/mnt/c/Users/JasonChiasson/OneDrive - AET Solutions Inc/Desktop/temp/"'
 alias home='cd "/mnt/c/Users/JasonChiasson/OneDrive - AET Solutions Inc/Desktop"'

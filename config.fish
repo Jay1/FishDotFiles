@@ -13,6 +13,7 @@ alias v='nvim'
 
 # Environment variables
 set -gx EDITOR nvim
+set -gx BROWSER wslview
 set -gx GIT_EDITOR $EDITOR
 set -gx fish_prompt_pwd_dir_length 0
 set fish_greeting "Welcome back, Jay"
@@ -62,3 +63,11 @@ end
 # Starship prompt initialization
 starship init fish | source
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+# OpenStack environment setup
+if status is-interactive
+    # Try to authenticate silently on shell start
+    if test -f ~/.config/openstack/atmosphere-openrc.fish
+        source ~/.config/openstack/atmosphere-openrc.fish >/dev/null 2>&1
+    end
+end
