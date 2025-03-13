@@ -8,6 +8,8 @@ alias editalias='v ~/.config/fish/aliases/main.fish' # Terminal Commands
 alias pshell='pwsh.exe'
 alias pwdc="pwd | tee /dev/tty | clip.exe"
 alias cls='clear'
+alias tinit="tmux new-session \; split-window -h"
+alias bgrep='batgrep'
 
 # Directory movements
 alias ...="cd ../.."
