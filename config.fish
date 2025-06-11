@@ -3,19 +3,30 @@ if status is-interactive
 end
 
 # Path modifications for WSL
-contains /usr/local/bin $PATH
-or set PATH /usr/local/bin $PATH
-contains /home/jay/.local/bin $PATH
-or set PATH /home/jay/.local/bin $PATH
+fish_add_path /usr/local/bin
+fish_add_path /home/jay/.local/bin
 
 # Alias for neovim
 alias v='nvim'
+
+# Nvm configuration
+if functions -q lts_periodically
+    lts_periodically
+end
+
+if command -s nvm &>/dev/null
+    command nvm use lts/* &>/dev/null
+end
+
+# Docker configuration
+set -x DOCKER_BUILDKIT 1
 
 # Environment variables
 set -gx EDITOR nvim
 set -gx BROWSER wslview
 set -gx GIT_EDITOR $EDITOR
 set -gx fish_prompt_pwd_dir_length 0
+set -x LS_COLORS (vivid generate snazzy)
 set fish_greeting "Welcome back, Jay"
 
 # OS detection
@@ -49,13 +60,12 @@ if test -f $HOME/.config/fish/aliases/git.fish
 end
 
 # Bun configuration (if you use it in WSL)
-set --export BUN_INSTALL "$HOME/.bun"
-set --export PATH $BUN_INSTALL/bin $PATH
+set -gx BUN_INSTALL "$HOME/.bun"
+fish_add_path $BUN_INSTALL/bin
 
 # WSL-specific configurations
 if string match -q "*Microsoft*" (uname -r)
-    # WSL-specific path additions (if needed)
-    # set -gx PATH /mnt/c/Windows/System32 $PATH
+    set -gx PATH /mnt/c/Windows/System32 $PATH
 
     # Add any other WSL-specific configurations here
 end

@@ -10,6 +10,8 @@ alias pwdc="pwd | tee /dev/tty | clip.exe"
 alias cls='clear'
 alias tinit="tmux new-session \; split-window -h"
 alias bgrep='batgrep'
+alias r='ranger'
+alias cat='bat'
 
 # Directory movements
 alias ...="cd ../.."
@@ -17,6 +19,7 @@ alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
 # Goto (adjust paths for your WSL setup)
+alias aet='cd /home/jay/aet'
 alias docu='cd "/mnt/c/Users/JasonChiasson/"'
 alias download='cd /mnt/c/Users/JasonChiasson/Downloads'
 alias temp='cd "/mnt/c/Users/JasonChiasson/OneDrive - AET Solutions Inc/Desktop/temp/"'
