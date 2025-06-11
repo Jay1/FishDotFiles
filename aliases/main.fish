@@ -9,6 +9,7 @@ alias .....="cd ../../../.."
 
 # Goto
 alias dl='cd ~/Downloads'
+alias projects='cd ~/projects'
 alias files='cd ~/Desktop/Files/'
 alias temp='cd ~/Desktop/Temp'
 alias fdot='cd ~/.config/fish/'
