@@ -3,6 +3,7 @@
 function lts_periodically
     # File to store the timestamp of the last check
     set -l last_check_file ~/.nvm_lts_last_check
+    functions -q nvm; or return
 
     # Interval for checking: 14 days in seconds (14 * 24 * 60 * 60 = 1209600)
     set -l check_interval_seconds 1209600
@@ -23,7 +24,8 @@ function lts_periodically
     set -l time_since_last_check (math $current_timestamp - $last_check_timestamp)
 
     if test $time_since_last_check -ge $check_interval_seconds
-        command nvm install 'lts/*' &>/dev/null
+        nvm -s install 'lts/*' >/dev/null ^/dev/null
+        nvm -s use 'lts/*' >/dev/null ^/dev/null
         echo $current_timestamp >$last_check_file
     end
 end

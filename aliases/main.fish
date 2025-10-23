@@ -12,6 +12,7 @@ alias tinit="tmux new-session \; split-window -h"
 alias bgrep='batgrep'
 alias r='ranger'
 alias cat='bat'
+alias oc='opencode .'
 
 # Directory movements
 alias ...="cd ../.."
