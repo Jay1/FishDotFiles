@@ -73,15 +73,9 @@ if test -f $HOME/.config/fish/aliases/git.fish
     source $HOME/.config/fish/aliases/git.fish
 end
 
-# Homebrew shell env (loads PATH for brew)
-if test -f /home/linuxbrew/.linuxbrew/bin/brew
-    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-end
-
-# Bun first on PATH (no globals; rely on universal var or literal path)
-if test -d "$HOME/.bun/bin"
-    fish_add_path "$HOME/.bun/bin"
-end
+# Bun configuration
+set -gx BUN_INSTALL "$HOME/.bun"
+fish_add_path $BUN_INSTALL/bin
 
 # WSL-specific configurations
 if string match -q "*Microsoft*" (uname -r)
@@ -96,7 +90,10 @@ if status is-interactive
         starship init fish | source
     end
 
-
+    # Homebrew shell environment
+    if test -f /home/linuxbrew/.linuxbrew/bin/brew
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    end
 
     # OpenStack environment setup
     if test -f ~/.config/openstack/atmosphere-openrc.fish
@@ -106,6 +103,3 @@ end
 
 # opencode
 fish_add_path /home/jay/.opencode/bin
-
-# ensure Bun first on PATH
-fish_add_path -m "$HOME/.bun/bin"

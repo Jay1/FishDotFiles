@@ -1,18 +1,15 @@
 function bup
-    # Icons: set -U BUP_ICONS emoji | text
+    # Markers: set BUP_ICONS=emoji for colored emoji; default = text
     set -l style (set -q BUP_ICONS; and echo $BUP_ICONS; or echo text)
-    set -l ok
-    set -l err
-    set -l run
     switch $style
         case emoji
-            set ok "✅"
-            set err "❌"
-            set run "🔄"
+            set -l ok (printf "\U2705") # ✅
+            set -l err (printf "\U274C") # ❌
+            set -l run (printf "\U1F504") # 🔄
         case text
-            set ok "✓"
-            set err "✗"
-            set run "↻"
+            set -l ok "✓"
+            set -l err "✗"
+            set -l run "↻"
     end
 
     argparse -n bup \
@@ -37,13 +34,13 @@ function bup
     set -l GREEDY
     set -q _flag_g; and set GREEDY --greedy
 
-    test $QUIET -eq 1; or echo "$run Updating taps…"
-    $brew update --quiet >/dev/null 2>&1; or begin
-        echo "$err Update failed"
+    test $QUIET -eq 1; or echo "$run updating taps…"
+    $brew update --quiet >/dev/null; or begin
+        echo "$err update failed"
         return 1
     end
 
-    # Detect cask support (macOS) and skip on Linux/WSL
+    # macOS has casks; Linux/WSL usually not
     set -l HAS_CASK 0
     $brew list --cask >/dev/null 2>&1; and set HAS_CASK 1
 
@@ -65,32 +62,32 @@ function bup
 
     if set -q _flag_dry_run
         if test -n "$o_f$o_c"
-            echo "$ok dry-run: Would upgrade:"
+            echo "$ok dry-run: would upgrade:"
             printf "%s\n" $o_f $o_c
         else
-            echo "$ok dry-run: Nothing to action"
+            echo "$ok dry-run: nothing to do"
         end
         return
     end
 
     if test (count $argv) -gt 0
-        test $QUIET -eq 1; or echo "$run Upgrading: "(string join " " $argv)
+        test $QUIET -eq 1; or echo "$run upgrading: "(string join " " $argv)
         env HOMEBREW_NO_AUTO_UPDATE=1 $brew upgrade $argv; or begin
-            echo "$err Upgrade failed"
+            echo "$err upgrade failed"
             return 1
         end
     else
         if test -n "$o_f"
-            test $QUIET -eq 1; or echo "$run Upgrading formulae…"
+            test $QUIET -eq 1; or echo "$run upgrading formulae…"
             env HOMEBREW_NO_AUTO_UPDATE=1 $brew upgrade --formula; or begin
-                echo "$err Formula upgrade failed"
+                echo "$err formula upgrade failed"
                 return 1
             end
         end
         if test -n "$o_c"
-            test $QUIET -eq 1; or echo "$run Upgrading casks…"
+            test $QUIET -eq 1; or echo "$run upgrading casks…"
             env HOMEBREW_NO_AUTO_UPDATE=1 $brew upgrade --cask $GREEDY; or begin
-                echo "$err Cask upgrade failed"
+                echo "$err cask upgrade failed"
                 return 1
             end
         end
@@ -100,10 +97,10 @@ function bup
     if set -q _flag_cleanup
         set -l would ($brew cleanup -n | string match -r '(^| )((Free|Would).*)')
         $brew cleanup -s
-        test -n "$would"; and echo "$ok Cleanup: $would"; or echo "$ok Cleanup"
+        test -n "$would"; and echo "$ok cleanup: $would"; or echo "$ok cleanup"
         $brew autoremove >/dev/null 2>&1
     end
 
     set -l dur (math (date +%s) - $start)
-    test $QUIET -eq 1; or echo "$ok Done in $dur s"
+    test $QUIET -eq 1; or echo "$ok done in $dur s"
 end
