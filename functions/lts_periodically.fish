@@ -24,8 +24,8 @@ function lts_periodically
     set -l time_since_last_check (math $current_timestamp - $last_check_timestamp)
 
     if test $time_since_last_check -ge $check_interval_seconds
-        nvm -s install 'lts/*' >/dev/null ^/dev/null
-        nvm -s use 'lts/*' >/dev/null ^/dev/null
+        command nvm install 'lts/*' >/dev/null 2>&1
+        command nvm use 'lts/*' >/dev/null 2>&1
         echo $current_timestamp >$last_check_file
     end
 end
