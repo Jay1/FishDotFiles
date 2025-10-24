@@ -5,6 +5,12 @@ alias refresh='source ~/.config/fish/config.fish'
 alias ls="ls -lAh --color=auto"
 alias explorer='explorer.exe .'
 alias editalias='v ~/.config/fish/aliases/main.fish'
+alias pshell='pwsh.exe'
+alias tinit="tmux new-session \; split-window -h"
+alias bgrep='batgrep'
+alias r='ranger'
+alias cat='bat'
+alias oc='opencode .'
 
 # Directory movements
 alias ...="cd ../.."
@@ -17,6 +23,7 @@ alias temp='cd "/mnt/c/Users/Jay/OneDrive/Desktop/temp/"'
 alias home='cd "/mnt/c/Users/Jay/OneDrive/Desktop"'
 alias startupfolder='cd "/mnt/c/Users/Jay/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup"'
 alias files='cd /mnt/c/Users/Jay/OneDrive/Main_Backup/Files/'
+alias aet='cd /home/jay/aet'
 alias config='cd ~/.config'
 alias fdot='cd ~/.config/fish/'
 alias vdot='cd ~/.config/nvim/'
