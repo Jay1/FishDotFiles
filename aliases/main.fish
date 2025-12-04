@@ -23,10 +23,10 @@ alias temp='cd "/mnt/c/Users/Jay/OneDrive/Desktop/temp/"'
 alias home='cd "/mnt/c/Users/Jay/OneDrive/Desktop"'
 alias startupfolder='cd "/mnt/c/Users/Jay/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup"'
 alias files='cd /mnt/c/Users/Jay/OneDrive/Main_Backup/Files/'
-alias aet='cd /home/jay/aet'
 alias config='cd ~/.config'
 alias fdot='cd ~/.config/fish/'
 alias vdot='cd ~/.config/nvim/'
+alias projects='cd ~/code/'
 
 # Weather
 alias weather="curl -4 wttr.in/Montreal"
