@@ -1,41 +1,59 @@
-# Terminal Commands
+# CLIPBOARD & INTERACTION
+alias pbcopy='clip.exe'
+alias pbpaste='powershell.exe -command "Get-Clipboard"'
 alias pwdc="pwd | tee /dev/tty | clip.exe"
-alias cls='clear'
-alias refresh='source ~/.config/fish/config.fish'
-alias ls="ls -lAh --color=auto"
-alias explorer='explorer.exe .'
-alias editalias='v ~/.config/fish/aliases/main.fish'
-alias pshell='pwsh.exe'
-alias tinit="tmux new-session \; split-window -h"
-alias bgrep='batgrep'
-alias r='ranger'
-alias cat='bat'
-alias oc='opencode .'
 
-# Directory movements
+# CORE UTILITIES
+alias bgrep='batgrep'
+alias cat='bat'
+alias cls='clear'
+alias editalias='v ~/.config/fish/aliases/main.fish'
+alias explorer='explorer.exe .'
+alias ls="ls -lAh --color=auto"
+alias oc='opencode .'
+alias pshell='pwsh.exe'
+alias r='ranger'
+alias refresh='source ~/.config/fish/config.fish'
+
+# DIRECTORY MOVEMENT
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias .....="cd ../../../.."
 
-# Navigation
-alias dl='cd /mnt/c/Users/Jay/Downloads'
-alias temp='cd "/mnt/c/Users/Jay/OneDrive/Desktop/temp/"'
-alias home='cd "/mnt/c/Users/Jay/OneDrive/Desktop"'
-alias startupfolder='cd "/mnt/c/Users/Jay/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup"'
-alias files='cd /mnt/c/Users/Jay/OneDrive/Main_Backup/Files/'
+# NAVIGATION SHORTCUTS
 alias config='cd ~/.config'
+alias dl='cd /mnt/c/Users/Jay/Downloads'
 alias fdot='cd ~/.config/fish/'
-alias vdot='cd ~/.config/nvim/'
+alias files='cd /mnt/c/Users/Jay/OneDrive/Main_Backup/Files/'
+alias home='cd "/mnt/c/Users/Jay/OneDrive/Desktop"'
 alias projects='cd ~/code/'
+alias startupfolder='cd "/mnt/c/Users/Jay/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup"'
+alias temp='cd "/mnt/c/Users/Jay/OneDrive/Desktop/temp/"'
+alias vdot='cd ~/.config/nvim/'
 
-# Weather
-alias weather="curl -4 wttr.in/Montreal"
+# NETWORK & TAILSCALE
+alias ts='tailscale status'
+alias tsip='tailscale ip -4'
+alias tsup='tailscale up --ssh --accept-dns=true'
+
+# SAFETY NETS
+alias chmod='chmod -v'
+alias chown='chown -v'
+alias cp='cp -i'
+alias ln='ln -i'
+alias mv='mv -i'
+alias rm='rm -I'
+
+# TMUX MANAGEMENT
+# Primary: Attach 'main', detach others, or create new with split
+alias t="tmux attach -t main -d || tmux new-session -s main \; split-window -h"
+alias tls="tmux ls"
+alias treset="tmux kill-session -t main; and t"
+
+# WEATHER & INFO
 alias moon="curl -4 wttr.in/Moon"
+alias weather="curl -4 wttr.in/Montreal"
 
-# Clipboard interaction
-alias pbcopy='clip.exe'
-alias pbpaste='powershell.exe -command "Get-Clipboard"'
-
-# WSL / Windows path conversion
-alias wslpath='wslpath -w'
+# WSL INTEGRATION
 alias winpath='wslpath -u'
+alias wslpath='wslpath -w'
