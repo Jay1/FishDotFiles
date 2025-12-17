@@ -1,3 +1,14 @@
+# BREW & PACKAGE MANAGEMENT
+# -----------------------------------------------------------------------------
+alias b='brew'
+alias bcl='brew cleanup --prune=all'
+alias bi='brew install'
+alias binfo='brew info'
+alias brm='brew uninstall'
+alias bs='brew search'
+alias bup='brew update; and brew upgrade'
+alias bserv='brew services list'
+
 # CLIPBOARD & INTERACTION
 alias pbcopy='clip.exe'
 alias pbpaste='powershell.exe -command "Get-Clipboard"'
@@ -33,8 +44,8 @@ alias vdot='cd ~/.config/nvim/'
 
 # NETWORK & TAILSCALE
 alias ts='tailscale status'
-alias tsip='tailscale ip -4'
-alias tsup='tailscale up --ssh --accept-dns=true'
+alias tsip='sudo tailscale ip -4'
+alias tsup='sudo tailscale up --ssh --operator=jay --accept-dns=false'
 
 # SAFETY NETS
 alias chmod='chmod -v'
