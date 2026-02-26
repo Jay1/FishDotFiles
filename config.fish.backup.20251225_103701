@@ -26,45 +26,28 @@ if string match -q "*Microsoft*" (uname -r)
 end
 
 # ------------------------------------------------------------------------------
-# Node.js Version Manager (nvm.fish) - Modern Fish-native implementation
+# NVM (Node Version Manager) Initialization
 # ------------------------------------------------------------------------------
-# nvm.fish is automatically loaded via Fisher plugin system
-# Universal variables configured:
-#   - nvm_data: ~/.local/share/nvm (Node.js installations)
-#   - nvm_default_version: latest (always use latest current by default)
-#
-# The node_manager function runs automatically every 14 days to:
-#   - Install latest current Node release and update LTS patch versions (24.x, 22.x, 20.x, 18.x)
-#   - Clean up old patch versions to reduce clutter
-#   - Set default to latest current
-#   - Log all activities to ~/.nvm_manager.log
-#
-# Manual commands:
-#   nvm list              - Show installed versions
-#   nvm use 18            - Switch to Node 18.x for legacy projects
-#   nvm install 16        - Install specific version manually
-#   node_manager          - Force run update check
+# This block makes the 'nvm' command available to the shell.
+# It must run before any other command that uses 'nvm'.
+# This example uses 'bass' to source the standard nvm.sh script.
+# If you have not installed bass, run: fisher install edc/bass
+set -q NVM_DIR; or set NVM_DIR "$HOME/.nvm"
+if test -s "$NVM_DIR/nvm.sh"
+    bass source "$NVM_DIR/nvm.sh" --no-use 2>/dev/null
+end
 # ------------------------------------------------------------------------------
 
 # Alias for neovim
 alias v='nvim'
 
-# Run Node.js version manager on interactive shell startup (respects 14-day interval)
-if status is-interactive
-    # Ensure latest current Node.js is active when installed; otherwise use LTS
-    if nvm use --silent latest 2>/dev/null
-        if not set --query nvm_default_version; or test "$nvm_default_version" != "latest"
-            set -U nvm_default_version latest
-        end
-    else
-        nvm use --silent lts 2>/dev/null
-        if not set --query nvm_default_version; or test "$nvm_default_version" != "lts"
-            set -U nvm_default_version lts
-        end
-    end
-    
-    # Run auto-update manager in background (respects 14-day interval)
-    node_manager &
+# Nvm periodic update and version setting
+# These can only run AFTER nvm is initialized above.
+if functions -q lts_periodically
+    status --is-interactive; and lts_periodically &
+end
+if type -q nvm
+    nvm use "lts/*" &>/dev/null
 end
 
 # Docker configuration
@@ -76,11 +59,6 @@ set -gx BROWSER wslview
 set -gx GIT_EDITOR $EDITOR
 set -gx COLORTERM truecolor
 set -gx fish_prompt_pwd_dir_length 0
-
-# Clockify Integration Environment Variables
-set -x CLOCKIFY_API_KEY "MTNiMDBhMjMtNTc3ZC00NTYwLWE3NzktMDQ4MWE0NzQ1Njhh"
-set -x CLOCKIFY_WORKSPACE_ID "5df7015a90e9290547d5fb16"
-set -x CLOCKIFY_USER_ID "60eb2b5a2a469042b6b55517"
 if type -q vivid
     set -x LS_COLORS (vivid generate snazzy)
 end
@@ -136,16 +114,4 @@ if status is-interactive
     if type -q tmux
         exec tmux new-session -A -s main
     end
-end
-set -x OPENCODE_ENABLE_EXPERIMENTAL_MODELS true
-set -x OPENCODE_EXPERIMENTAL_DISABLE_COPY_ON_SELECT true
-set -x OPENCODE_EXPERIMENTAL_ICON_DISCOVERY true
-
-# OpenClaw Completion
-source "/home/jay/.openclaw/completions/openclaw.fish"
-
-# Auto-ensure OpenClaw gateway is up when starting an interactive WSL shell
-if status is-interactive
-    # This is idempotent when already running; starts system service if needed.
-    systemctl start openclaw-gateway.service >/dev/null 2>&1
 end
