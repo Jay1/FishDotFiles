@@ -25,6 +25,14 @@ if string match -q "*Microsoft*" (uname -r)
     fish_add_path /mnt/c/Windows/System32
 end
 
+# OpenClaw env compatibility cleanup
+if set -q CLAWDBOT_TMUX_SOCKET_DIR
+    if not set -q OPENCLAW_TMUX_SOCKET_DIR
+        set -gx OPENCLAW_TMUX_SOCKET_DIR $CLAWDBOT_TMUX_SOCKET_DIR
+    end
+    set -e CLAWDBOT_TMUX_SOCKET_DIR
+end
+
 # ------------------------------------------------------------------------------
 # Node.js Version Manager (nvm.fish) - Modern Fish-native implementation
 # ------------------------------------------------------------------------------
@@ -51,18 +59,28 @@ alias v='nvim'
 
 # Run Node.js version manager on interactive shell startup (respects 14-day interval)
 if status is-interactive
-    # Ensure latest current Node.js is active when installed; otherwise use LTS
-    if nvm use --silent latest 2>/dev/null
-        if not set --query nvm_default_version; or test "$nvm_default_version" != "latest"
-            set -U nvm_default_version latest
-        end
-    else
-        nvm use --silent lts 2>/dev/null
-        if not set --query nvm_default_version; or test "$nvm_default_version" != "lts"
-            set -U nvm_default_version lts
+    # Persist default selection for new shells
+    if not set --query nvm_default_version
+        set -U nvm_default_version latest-installed
+    end
+
+    # Clear stale exported state from parent shells so this shell always
+    # reactivates the default node version we want.
+    set --erase --global nvm_current_version 2>/dev/null
+    set --erase --universal nvm_current_version 2>/dev/null
+
+    # Prefer the newest installed Node version on startup. If unavailable,
+    # fall back to the persisted nvm default only when it is not the synthetic
+    # latest-installed marker.
+    if functions -q nvm_use_latest_installed
+        nvm_use_latest_installed 2>/dev/null
+    end
+    if test $status -ne 0
+        if set --query nvm_default_version; and test "$nvm_default_version" != "latest-installed"
+            nvm use --silent default 2>/dev/null
         end
     end
-    
+
     # Run auto-update manager in background (respects 14-day interval)
     node_manager &
 end
@@ -78,9 +96,9 @@ set -gx COLORTERM truecolor
 set -gx fish_prompt_pwd_dir_length 0
 
 # Clockify Integration Environment Variables
-set -x CLOCKIFY_API_KEY "MTNiMDBhMjMtNTc3ZC00NTYwLWE3NzktMDQ4MWE0NzQ1Njhh"
-set -x CLOCKIFY_WORKSPACE_ID "5df7015a90e9290547d5fb16"
-set -x CLOCKIFY_USER_ID "60eb2b5a2a469042b6b55517"
+set -x CLOCKIFY_API_KEY MTNiMDBhMjMtNTc3ZC00NTYwLWE3NzktMDQ4MWE0NzQ1Njhh
+set -x CLOCKIFY_WORKSPACE_ID 5df7015a90e9290547d5fb16
+set -x CLOCKIFY_USER_ID 60eb2b5a2a469042b6b55517
 if type -q vivid
     set -x LS_COLORS (vivid generate snazzy)
 end
@@ -114,6 +132,117 @@ if test -f $HOME/.config/fish/aliases/git.fish
     source $HOME/.config/fish/aliases/git.fish
 end
 
+# ------------------------------------------------------------------------------
+# Repo-aware Linear key routing + OpenCode guardrails
+# ------------------------------------------------------------------------------
+function __expected_linear_team_for_pwd --description 'Map current path to expected Linear team key'
+    set -l cwd "$PWD"
+    if string match -qr '^/home/jay/code/AET_TaskOps($|/)' -- "$cwd"
+        echo AET
+        return 0
+    end
+    if string match -qr '^/home/jay/code/EH_team(_live)?($|/)' -- "$cwd"
+        echo EH
+        return 0
+    end
+    if string match -qr '^/home/jay/code/rentfast($|/)' -- "$cwd"
+        echo REN
+        return 0
+    end
+    echo NONE
+end
+
+function __set_linear_key_for_pwd --description 'Set LINEAR_API_KEY based on repository path'
+    set -l team (__expected_linear_team_for_pwd)
+    switch $team
+        case AET
+            if set -q LINEAR_API_KEY_AET
+                set -gx LINEAR_API_KEY "$LINEAR_API_KEY_AET"
+            else
+                set -e LINEAR_API_KEY
+            end
+        case EH
+            if set -q LINEAR_API_KEY_EH
+                set -gx LINEAR_API_KEY "$LINEAR_API_KEY_EH"
+            else
+                set -e LINEAR_API_KEY
+            end
+        case REN
+            if set -q LINEAR_API_KEY_REN
+                set -gx LINEAR_API_KEY "$LINEAR_API_KEY_REN"
+            else
+                set -e LINEAR_API_KEY
+            end
+        case NONE '*'
+            set -e LINEAR_API_KEY
+    end
+end
+
+function __linear_key_preflight --description 'Verify active LINEAR_API_KEY matches expected team for this repo'
+    set -l expected (__expected_linear_team_for_pwd)
+
+    # Unmapped folders are allowed: run OpenCode without Linear binding.
+    if test "$expected" = "NONE"
+        return 0
+    end
+
+    if not set -q LINEAR_API_KEY
+        echo "[oc-guard] BLOCKED_CONTEXT: expected team $expected but LINEAR_API_KEY is not set"
+        return 1
+    end
+
+    set -l q '{"query":"query { teams(first:10) { nodes { key } } }"}'
+    set -l found (curl -s https://api.linear.app/graphql \
+        -H 'Content-Type: application/json' \
+        -H "Authorization: $LINEAR_API_KEY" \
+        --data-binary "$q" | jq -r '.data.teams.nodes[].key' | string join ',')
+
+    if test -z "$found"
+        echo "[oc-guard] BLOCKED_CONTEXT: unable to resolve Linear workspace for current key"
+        return 1
+    end
+
+    set -l resolved_teams (string split ',' -- "$found")
+    if not contains -- "$expected" $resolved_teams
+        echo "[oc-guard] BLOCKED_CONTEXT: expected Linear team $expected but key resolves to [$found]"
+        return 1
+    end
+
+    return 0
+end
+
+function __auto_set_linear_key --on-variable PWD --description 'Auto-switch LINEAR_API_KEY on directory change'
+    __set_linear_key_for_pwd >/dev/null 2>&1
+end
+
+function oc --description 'Open OpenCode with repo-aware Linear key guardrails'
+    __set_linear_key_for_pwd
+
+    set -l expected (__expected_linear_team_for_pwd)
+    if test "$expected" = "NONE"
+        echo "[oc-guard] INFO: unmapped path - launching OpenCode without Linear workspace binding"
+        if test (count $argv) -eq 0
+            command opencode .
+        else
+            command opencode $argv
+        end
+        return $status
+    end
+
+    if not __linear_key_preflight
+        return 1
+    end
+
+    if test (count $argv) -eq 0
+        command opencode .
+    else
+        command opencode $argv
+    end
+end
+
+# Ensure key is set for initial shell cwd
+__set_linear_key_for_pwd >/dev/null 2>&1
+
 # Interactive session specific configurations
 if status is-interactive
     # OpenStack environment setup
@@ -143,9 +272,3 @@ set -x OPENCODE_EXPERIMENTAL_ICON_DISCOVERY true
 
 # OpenClaw Completion
 source "/home/jay/.openclaw/completions/openclaw.fish"
-
-# Auto-ensure OpenClaw gateway is up when starting an interactive WSL shell
-if status is-interactive
-    # This is idempotent when already running; starts system service if needed.
-    systemctl start openclaw-gateway.service >/dev/null 2>&1
-end

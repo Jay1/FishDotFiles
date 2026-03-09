@@ -1,13 +1,15 @@
 function _nvm_list
-    set --local versions $nvm_data/*
+    set --local versions
 
-    set --query versions[1] &&
-        string match --entire --regex -- (
-            string replace --all -- $nvm_data/ "" $versions |
-            string match --regex -- "v\d.+" |
-            string escape --style=regex |
-            string join "|"
-        ) <$nvm_data/.index
+    for path in $nvm_data/v*
+        if test -d $path
+            set versions $versions (basename $path)
+        end
+    end
+
+    if test (count $versions) -gt 0
+        printf '%s\n' $versions | sort -V
+    end
 
     command --all node |
         string match --quiet --invert --regex -- "^$nvm_data" && echo system

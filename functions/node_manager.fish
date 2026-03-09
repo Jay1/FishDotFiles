@@ -108,13 +108,18 @@ function node_manager --description "Manages Node.js versions automatically - in
         end
     end
     
-    # Set default to latest current
-    echo "🔧 Setting default to latest current..." | tee -a $log_file
-    if nvm use latest >/dev/null 2>&1
-        set -U nvm_default_version latest
-        echo "✅ Default set to: "(nvm current) | tee -a $log_file
+    # Set default to newest installed version
+    echo "🔧 Setting default to newest installed version..." | tee -a $log_file
+    if set -l newest_installed (nvm list | string match -r 'v[0-9]+\.[0-9]+\.[0-9]+' | sort -V | tail -n 1)
+        if test -n "$newest_installed"
+            set -U nvm_default_version latest-installed
+            nvm use $newest_installed >/dev/null 2>&1
+            echo "✅ Default set to installed latest: $newest_installed" | tee -a $log_file
+        else
+            echo "⚠️  Could not determine newest installed Node version" | tee -a $log_file
+        end
     else
-        echo "⚠️  Could not set default to latest current" | tee -a $log_file
+        echo "⚠️  Could not determine newest installed Node version" | tee -a $log_file
     end
     
     # Update timestamp

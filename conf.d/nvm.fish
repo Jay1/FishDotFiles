@@ -23,6 +23,10 @@ function _nvm_uninstall --on-event nvm_uninstall
     functions --erase (functions --all | string match --entire --regex -- "^_nvm_")
 end
 
-if status is-interactive && set --query nvm_default_version && ! set --query nvm_current_version
-    nvm use --silent $nvm_default_version
+if status is-interactive && ! set --query nvm_current_version
+    if functions -q nvm_use_latest_installed
+        nvm_use_latest_installed 2>/dev/null
+    else if set --query nvm_default_version; and test "$nvm_default_version" != "latest-installed"
+        nvm use --silent $nvm_default_version 2>/dev/null
+    end
 end
