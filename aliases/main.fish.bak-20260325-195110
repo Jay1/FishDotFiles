@@ -21,23 +21,27 @@ alias cls='clear'
 alias editalias='v ~/.config/fish/aliases/main.fish'
 alias explorer='explorer.exe .'
 alias ls="ls -lAh --color=auto"
-function pshell --wraps=pwsh.exe --description 'Open pwsh in C:/Users/Jay by default, or current path with pshell .'
-    if test (count $argv) -eq 0
-        command pwsh.exe -NoExit -WorkingDirectory "C:\Users\Jay"
-    else if test "$argv[1]" = "."
-        set -l winpwd (command wslpath -w -- "$PWD")
-        command pwsh.exe -NoExit -WorkingDirectory "$winpwd"
-    else
+function pshell --description 'Open PowerShell from WSL/tmux safely'
+    if test -e "/mnt/c/Program Files/PowerShell/7/pwsh.exe"
+        command "/mnt/c/Program Files/PowerShell/7/pwsh.exe" $argv
+    else if test -e "/mnt/c/Users/Jay/AppData/Local/Microsoft/WindowsApps/pwsh.exe"
+        command "/mnt/c/Users/Jay/AppData/Local/Microsoft/WindowsApps/pwsh.exe" $argv
+    else if test -e "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+        command "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe" $argv
+    else if type -q pwsh.exe
         command pwsh.exe $argv
+    else if type -q powershell.exe
+        command powershell.exe $argv
+    else if type -q pwsh
+        command pwsh $argv
+    else
+        echo "No PowerShell binary found (pwsh.exe / powershell.exe / pwsh)."
+        return 127
     end
+end
 end
 alias r='ranger'
-function refresh --description 'Reload Fish config and conf.d snippets'
-    source ~/.config/fish/config.fish
-    for file in (find ~/.config/fish/conf.d -maxdepth 1 -type f | sort)
-        source $file
-    end
-end
+alias refresh='source ~/.config/fish/config.fish'
 
 # DIRECTORY MOVEMENT
 alias ...="cd ../.."
@@ -75,7 +79,7 @@ alias rm='rm -I'
 
 # TMUX MANAGEMENT
 # Primary: Attach 'main', detach others, or create new with split
-alias t="tmux -f $HOME/.config/tmux/tmux.conf attach -t main -d || tmux -f $HOME/.config/tmux/tmux.conf new-session -s main \; split-window -h"
+alias t="tmux attach -t main -d || tmux new-session -s main \; split-window -h"
 alias tls="tmux ls"
 alias treset="tmux kill-session -t main; and t"
 

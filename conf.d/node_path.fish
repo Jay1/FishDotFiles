@@ -1,2 +1,3 @@
-# Ensure Node v24 is on PATH for non-login shells
-set -gx PATH /home/jay/.local/share/nvm/v24.13.0/bin /home/jay/.nvm/versions/node/v18.20.8/bin:/home/jay/.local/bin:/home/jay/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/home/jay/.local/bin:/home/jay/.bun/bin:/usr/bin:/bin:/home/jay/.npm-global/bin:/home/jay/bin:/home/jay/.nvm/current/bin:/home/jay/.fnm/current/bin:/home/jay/.volta/bin:/home/jay/.asdf/shims:/home/jay/.local/share/pnpm:/snap/bin
+# Keep this file free of hard-coded Node paths so nvm can control Node selection.
+fish_add_path /home/jay/.bun/bin
+fish_add_path /home/jay/.local/bin

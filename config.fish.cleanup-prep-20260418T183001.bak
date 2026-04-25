@@ -32,35 +32,92 @@ if set -q CLAWDBOT_TMUX_SOCKET_DIR
 end
 
 # ------------------------------------------------------------------------------
-# Runtime manager (mise)
+# Node.js Version Manager (nvm.fish) - Modern Fish-native implementation
 # ------------------------------------------------------------------------------
-# Mise is now the primary runtime manager for Node and other toolchains.
-# Keep legacy nvm installed on disk for emergency/manual access only, but do not
-# let it manage PATH or shell startup anymore.
-if test -x /home/jay/.local/bin/mise
-    /home/jay/.local/bin/mise activate fish | source
+# nvm.fish is automatically loaded via Fisher plugin system
+# Universal variables configured:
+#   - nvm_data: ~/.local/share/nvm (Node.js installations)
+#   - nvm_default_version: latest (always use latest current by default)
+#
+# The node_manager function runs automatically every 14 days to:
+#   - Install latest current Node release and update LTS patch versions (24.x, 22.x, 20.x, 18.x)
+#   - Clean up old patch versions to reduce clutter
+#   - Set default to latest current
+#   - Log all activities to ~/.nvm_manager.log
+#
+# Manual commands:
+#   nvm list              - Show installed versions
+#   nvm use 18            - Switch to Node 18.x for legacy projects
+#   nvm install 16        - Install specific version manually
+#   node_manager          - Force run update check
+# ------------------------------------------------------------------------------
+
+# Remove stale legacy Node bins inherited from older ~/.nvm setups so Fish can
+# consistently manage Node via ~/.local/share/nvm.
+set -l latest_local_nvm_node
+if test -d "$HOME/.local/share/nvm"
+    set latest_local_nvm_node (find "$HOME/.local/share/nvm" -maxdepth 1 -mindepth 1 -type d -name 'v*' | sort -V | tail -n 1)
 end
 
-# Remove stale legacy nvm bins from PATH now that mise owns runtime activation.
 if set -q PATH
     set -l cleaned_path
     for p in $PATH
-        if string match -qr ^/home/jay/\.local/share/nvm/v[^/]+/bin -- $p
+        if string match -qr '^/home/jay/\.nvm/(current|versions/node/[^/]+)/bin$' -- $p
             continue
         end
-        if string match -qr ^/home/jay/\.nvm/current/bin -- $p
-            continue
-        end
-        if string match -qr ^/home/jay/\.nvm/versions/node/[^/]+/bin -- $p
-            continue
+        if string match -qr '^/home/jay/\.local/share/nvm/v[^/]+/bin$' -- $p
+            if test -n "$latest_local_nvm_node"; and test "$p" != "$latest_local_nvm_node/bin"
+                continue
+            end
         end
         set cleaned_path $cleaned_path $p
     end
     set -gx PATH $cleaned_path
 end
 
+# Prefer the newest installed ~/.local/share/nvm Node for general shell use in
+# both interactive and non-interactive Fish shells. OpenClaw itself still uses
+# OPENCLAW_NODE_HOME as its approved-runtime override.
+if test -n "$latest_local_nvm_node"; and test -x "$latest_local_nvm_node/bin/node"
+    fish_add_path -m "$latest_local_nvm_node/bin"
+end
+
+
+# mise runtime manager
+if test -x /home/jay/.local/bin/mise
+    /home/jay/.local/bin/mise activate fish | source
+end
+
 # Alias for neovim
 alias v='nvim'
+
+# Run Node.js version manager on interactive shell startup (respects 14-day interval)
+if status is-interactive
+    # Persist default selection for new shells
+    if not set --query nvm_default_version
+        set -U nvm_default_version latest-installed
+    end
+
+    # Clear stale exported state from parent shells so this shell always
+    # reactivates the default node version we want.
+    set --erase --global nvm_current_version 2>/dev/null
+    set --erase --universal nvm_current_version 2>/dev/null
+
+    # Prefer the newest installed Node version on startup. If unavailable,
+    # fall back to the persisted nvm default only when it is not the synthetic
+    # latest-installed marker.
+    if functions -q nvm_use_latest_installed
+        nvm_use_latest_installed 2>/dev/null
+    end
+    if test $status -ne 0
+        if set --query nvm_default_version; and test "$nvm_default_version" != "latest-installed"
+            nvm use --silent default 2>/dev/null
+        end
+    end
+
+    # Run auto-update manager in background (respects 14-day interval)
+    node_manager &
+end
 
 # Docker configuration
 set -x DOCKER_BUILDKIT 1
@@ -130,10 +187,6 @@ function __expected_linear_team_for_pwd --description 'Map current path to expec
         echo EH
         return 0
     end
-    if string match -qr '^/home/jay/code/mission[Cc]ontrol($|/)' -- "$cwd"
-        echo EH
-        return 0
-    end
     if string match -qr '^/home/jay/code/seekakey($|/)' -- "$cwd"
         echo SEEK
         return 0
@@ -146,14 +199,6 @@ function __set_linear_key_for_pwd --description 'Set LINEAR_API_KEY based on rep
     if string match -qr '^/home/jay/code/aet-webui($|/)' -- "$cwd"
         if set -q LINEAR_API_KEY_AET_WEBUI
             set -gx LINEAR_API_KEY "$LINEAR_API_KEY_AET_WEBUI"
-        else
-            set -e LINEAR_API_KEY
-        end
-        return 0
-    end
-    if string match -qr '^/home/jay/code/mission[Cc]ontrol($|/)' -- "$cwd"
-        if set -q LINEAR_API_KEY_EH_WEBUI
-            set -gx LINEAR_API_KEY "$LINEAR_API_KEY_EH_WEBUI"
         else
             set -e LINEAR_API_KEY
         end
