@@ -165,7 +165,6 @@ function __async_prompt_config_functions
             string join \n $async_prompt_functions
         else
             echo fish_prompt
-            echo fish_right_prompt
         end
     )
     for func in $funcs
