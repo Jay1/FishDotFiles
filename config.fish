@@ -122,7 +122,15 @@ function __expected_linear_team_for_pwd --description 'Map current path to expec
         echo AET
         return 0
     end
-    if string match -qr '^/home/jay/code/aet-webui($|/)' -- "$cwd"
+    if string match -qr '^/home/jay/code/(aet-webui|AET_WebUI)($|/)' -- "$cwd"
+        echo AET
+        return 0
+    end
+    if string match -qr '^/home/jay/code/AET_BizWiz($|/)' -- "$cwd"
+        echo AET
+        return 0
+    end
+    if string match -qr '^/home/jay/code/(AET_TaskOps|AET_KB4|AET_RedOps|AET_nFlex|AET_nFlex-deps-upgrade)($|/)' -- "$cwd"
         echo AET
         return 0
     end
@@ -134,7 +142,7 @@ function __expected_linear_team_for_pwd --description 'Map current path to expec
         echo EH
         return 0
     end
-    if string match -qr '^/home/jay/code/seekakey($|/)' -- "$cwd"
+    if string match -qr '^/home/jay/code/(seekakey|SeekaKey)($|/)' -- "$cwd"
         echo SEEK
         return 0
     end
@@ -143,9 +151,17 @@ end
 
 function __set_linear_key_for_pwd --description 'Set LINEAR_API_KEY based on repository path'
     set -l cwd "$PWD"
-    if string match -qr '^/home/jay/code/aet-webui($|/)' -- "$cwd"
+    if string match -qr '^/home/jay/code/(aet-webui|AET_WebUI)($|/)' -- "$cwd"
         if set -q LINEAR_API_KEY_AET_WEBUI
             set -gx LINEAR_API_KEY "$LINEAR_API_KEY_AET_WEBUI"
+        else
+            set -e LINEAR_API_KEY
+        end
+        return 0
+    end
+    if string match -qr '^/home/jay/code/AET_BizWiz($|/)' -- "$cwd"
+        if set -q LINEAR_API_KEY_AET_BIZWIZ
+            set -gx LINEAR_API_KEY "$LINEAR_API_KEY_AET_BIZWIZ"
         else
             set -e LINEAR_API_KEY
         end
