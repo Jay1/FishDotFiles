@@ -21,14 +21,39 @@ alias cls='clear'
 alias editalias='v ~/.config/fish/aliases/main.fish'
 alias explorer='explorer.exe .'
 alias ls="ls -lAh --color=auto"
+function __windows_pwsh --description 'Resolve Windows PowerShell from WSL'
+    for candidate in \
+            "/mnt/c/Program Files/PowerShell/7-preview/pwsh.exe" \
+            "/mnt/c/Program Files/PowerShell/7/pwsh.exe" \
+            "/mnt/c/Users/Jay/AppData/Local/Microsoft/WindowsApps/pwsh.exe"
+        if test -x "$candidate"
+            echo "$candidate"
+            return 0
+        end
+    end
+
+    if type -q pwsh.exe
+        echo pwsh.exe
+        return 0
+    end
+
+    return 1
+end
+
 function pshell --wraps=pwsh.exe --description 'Open pwsh in C:/Users/Jay by default, or current path with pshell .'
+    set -l pwsh_bin (__windows_pwsh)
+    if test -z "$pwsh_bin"
+        echo "No Windows PowerShell binary found."
+        return 127
+    end
+
     if test (count $argv) -eq 0
-        command pwsh.exe -NoExit -WorkingDirectory "C:\Users\Jay"
+        command "$pwsh_bin" -NoExit -WorkingDirectory "C:\Users\Jay"
     else if test "$argv[1]" = "."
         set -l winpwd (command wslpath -w -- "$PWD")
-        command pwsh.exe -NoExit -WorkingDirectory "$winpwd"
+        command "$pwsh_bin" -NoExit -WorkingDirectory "$winpwd"
     else
-        command pwsh.exe $argv
+        command "$pwsh_bin" $argv
     end
 end
 alias r='ranger'
@@ -50,7 +75,7 @@ alias dl='cd /mnt/c/Users/Jay/Downloads'
 alias fdot='cd ~/.config/fish/'
 alias files='cd /mnt/c/Users/Jay/OneDrive/Main_Backup/Files/'
 alias home='cd "/mnt/c/Users/Jay/OneDrive/Desktop"'
-alias projects='cd ~/code/'
+alias code='cd ~/code/'
 alias wprojects='cd /mnt/c/Code/'
 alias sitrep='cd ~/aet/SITREPS/current/'
 alias startupfolder='cd "/mnt/c/Users/Jay/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup"'
